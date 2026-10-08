@@ -1,0 +1,1 @@
+# diagnostico-lideranca-ad-alvorada
