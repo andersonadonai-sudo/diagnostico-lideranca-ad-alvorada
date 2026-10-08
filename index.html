@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico de Liderança · AD Alvorada</title>
+<style>
+  :root{
+    --bg:#f4f6f3; --surface:#ffffff; --text:#1d2b22; --muted:#5d6f63;
+    --green:#1b5e20; --green2:#2e7d32; --gold:#b8860b; --gold2:#f9a825;
+    --red:#c62828; --amber:#f57f17; --line:#dde5df; --shadow:0 6px 24px rgba(29,43,34,.10);
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+  .wrap{max-width:560px;margin:0 auto;padding:18px 16px 40px}
+  .screen{display:none;animation:fade .35s ease}
+  .screen.on{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  .topbar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .crest{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;flex:none;box-shadow:var(--shadow)}
+  .topbar h1{font-size:15px;font-weight:700;line-height:1.2}
+  .topbar small{color:var(--muted);font-size:11.5px;display:block;font-weight:500}
+
+  .badge-expand{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(90deg,#0d3b13,#1b5e20);color:#ffe082;font-weight:800;font-size:11px;letter-spacing:1.5px;padding:6px 12px;border-radius:999px;text-transform:uppercase}
+
+  .card{background:var(--surface);border-radius:18px;padding:22px 20px;box-shadow:var(--shadow);margin-bottom:14px}
+  .card h2{font-size:20px;margin-bottom:6px}
+  .card p{color:var(--muted);font-size:14px;line-height:1.55}
+  .verse{background:#f2f7f1;border-left:4px solid var(--green2);padding:12px 14px;border-radius:0 12px 12px 0;font-size:13.5px;font-style:italic;color:#2c3e33;margin:14px 0;line-height:1.6}
+  .verse b{font-style:normal;color:var(--green);font-size:12px;display:block;margin-top:5px}
+
+  label{display:block;font-size:12.5px;font-weight:700;color:var(--green);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.5px}
+  input,select{width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:12px;font-size:15px;background:#fbfcfb;color:var(--text);outline:none}
+  input:focus,select:focus{border-color:var(--green2);background:#fff}
+
+  .btn{display:block;width:100%;padding:15px;border:none;border-radius:14px;font-size:15.5px;font-weight:800;cursor:pointer;text-align:center;transition:transform .12s,filter .15s}
+  .btn:active{transform:scale(.97)}
+  .btn-green{background:linear-gradient(135deg,var(--green2),var(--green));color:#fff;box-shadow:0 5px 16px rgba(27,94,32,.35)}
+  .btn-gold{background:linear-gradient(135deg,#f9a825,#f57f17);color:#3e2723;box-shadow:0 5px 16px rgba(245,127,23,.3)}
+  .btn-ghost{background:transparent;color:var(--muted);font-weight:700;border:1.5px dashed var(--line)}
+  .btn-wa{background:linear-gradient(135deg,#25d366,#128c7e);color:#fff;box-shadow:0 5px 16px rgba(18,140,126,.4)}
+  .btn+.btn{margin-top:10px}
+
+  .progress{height:6px;background:#e3eae4;border-radius:99px;overflow:hidden;margin:4px 0 16px}
+  .progress i{display:block;height:100%;background:linear-gradient(90deg,var(--gold2),var(--green2));border-radius:99px;transition:width .3s}
+
+  .qdim{font-size:11px;font-weight:800;letter-spacing:1.2px;color:var(--gold);text-transform:uppercase;margin-bottom:8px}
+  .qtext{font-size:17.5px;font-weight:700;line-height:1.45;margin-bottom:18px}
+  .scale{display:flex;flex-direction:column;gap:9px}
+  .opt{display:flex;align-items:center;gap:12px;padding:13px 15px;border:1.5px solid var(--line);border-radius:13px;background:#fff;cursor:pointer;font-size:14.5px;font-weight:600;transition:all .15s}
+  .opt:active{transform:scale(.98)}
+  .opt .dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:800;color:#fff;flex:none}
+  .opt.sel{border-color:var(--green2);background:#eef7ef;box-shadow:0 0 0 2px rgba(46,125,50,.25)}
+  .d1{background:#c62828}.d2{background:#e07b39}.d3{background:#f0b429;color:#5d4037}.d4{background:#7cb342}.d5{background:#2e7d32}
+
+  .score-big{text-align:center;padding:8px 0 2px}
+  .score-big .num{font-size:52px;font-weight:900;color:var(--green)}
+  .score-big .lbl{font-size:16px;font-weight:800;letter-spacing:.5px}
+  .dimrow{margin:13px 0}
+  .dimrow .dh{display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:5px}
+  .bar{height:10px;background:#e8eee9;border-radius:99px;overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:99px;transition:width .6s}
+  .b-green{background:linear-gradient(90deg,#66bb6a,#2e7d32)}
+  .b-amber{background:linear-gradient(90deg,#ffd54f,#f9a825)}
+  .b-red{background:linear-gradient(90deg,#ef9a9a,#c62828)}
+
+  .tipbox{background:#fdf6e3;border-left:4px solid var(--gold2);padding:11px 13px;border-radius:0 11px 11px 0;font-size:13px;line-height:1.55;margin:9px 0;color:#4e3d1e}
+  .tipbox b{color:#8d6e00}
+  .expbox{background:#eef7ef;border-left:4px solid var(--green2);padding:11px 13px;border-radius:0 11px 11px 0;font-size:13px;line-height:1.55;margin:9px 0;color:#244630}
+  .expbox b{color:var(--green)}
+  .pill{display:inline-block;background:#eef7ef;color:var(--green);border-radius:999px;padding:4px 11px;font-size:12px;font-weight:700;margin:3px 4px 3px 0}
+
+  .study-item{margin:13px 0;padding-bottom:13px;border-bottom:1px solid var(--line)}
+  .study-item:last-child{border:none}
+  .study-item h3{font-size:14.5px;color:var(--green);margin-bottom:4px}
+  .study-item p{font-size:13.5px;color:var(--muted);line-height:1.55}
+  .study-item .ref{font-size:12px;color:var(--gold);font-weight:700;margin-top:3px;display:block}
+
+  .foot{font-size:11px;color:var(--muted);text-align:center;margin-top:18px;line-height:1.5}
+  .wa-note{background:#e8f5e9;border-radius:12px;padding:11px 13px;font-size:12.5px;color:#1b5e20;line-height:1.5;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- BARRA SUPERIOR -->
+  <div class="topbar">
+    <div class="crest">🕊️</div>
+    <div>
+      <h1>Diagnóstico de Liderança</h1>
+      <small>Assembleia de Deus — Alvorada</small>
+    </div>
+  </div>
+
+  <!-- TELA 0 · INTRO -->
+  <div class="screen on" id="sc-intro">
+    <div class="card">
+      <span class="badge-expand">🚀 Tema Anual · Expansão</span>
+      <h2 style="margin-top:12px">Igreja que expande,<br>líder que cresce.</h2>
+      <p>Nenhum projeto de expansão vai além da liderança que o sustenta. Por isso, antes de avançarmos, precisamos olhar com sinceridade para quem carrega a obra: <b>você</b>.</p>
+      <div class="verse">"Alarga o espaço da tua tenda, e que se estendam sem medida as cortinas das tuas moradas... porque te estenderás para a direita e para a esquerda."<b>Isaías 54:2-3</b></div>
+      <p>Este diagnóstico é <b>confidencial e pastoral</b> — não é prova, é espelho. Responda com verdade, não com o que soa bem. É assim que a liderança amadurece.</p>
+    </div>
+    <div class="card">
+      <label>Seu nome</label>
+      <input id="fNome" type="text" placeholder="Ex.: João da Silva" autocomplete="name">
+      <label>Seu ministério / área</label>
+      <select id="fMin">
+        <option value="">Selecione…</option>
+        <option>Louvor</option><option>Diaconato</option><option>Escola Dominical</option>
+        <option>Infantil</option><option>Adolescentes</option><option>Jovens</option>
+        <option>Mulheres (Círculo de Oração)</option><option>Intercessão</option>
+        <option>Recepção</option><option>Mídia</option><option>Missões</option>
+        <option>Limpeza / Apoio</option><option>Outro</option>
+      </select>
+      <label>Tempo como obreiro(a)</label>
+      <select id="fTempo">
+        <option value="">Selecione…</option>
+        <option>Menos de 1 ano</option><option>1 a 3 anos</option>
+        <option>3 a 5 anos</option><option>Mais de 5 anos</option>
+      </select>
+      <div style="height:14px"></div>
+      <button class="btn btn-green" onclick="startQuiz()">Começar diagnóstico →</button>
+      <button class="btn btn-ghost" onclick="show('sc-estudo')">📖 Estudo base: o que a Palavra diz sobre liderar</button>
+    </div>
+    <div class="foot">Suas respostas são enviadas apenas ao pastor responsável.<br>Seja verdadeiro: espelho honesto edifica, espelho maquiado engana.</div>
+  </div>
+
+  <!-- TELA ESTUDO -->
+  <div class="screen" id="sc-estudo">
+    <div class="card">
+      <h2>📖 O que a Palavra diz sobre liderança</h2>
+      <p style="margin-bottom:4px">Cinco pilares bíblicos que sustentam quem lidera a casa de Deus — e que este diagnóstico mede.</p>
+      <div class="study-item">
+        <h3>1. Liderança é serviço, não posição</h3>
+        <p>Jesus redefiniu grandeza: quem quer ser o primeiro faz-se servo de todos. O obreiro lidera de baixo para cima — servindo.</p>
+        <span class="ref">Marcos 10:43-45 · João 13:14-15</span>
+      </div>
+      <div class="study-item">
+        <h3>2. Caráter antes de carisma</h3>
+        <p>As qualificações do obreiro na Escritura falam quase só de caráter: irrepreensível, sóbrio, hospitaleiro, que tem bom testemunho. Dom atrai multidão; caráter mantém.</p>
+        <span class="ref">1 Timóteo 3:1-7 · Tito 1:6-9</span>
+      </div>
+      <div class="study-item">
+        <h3>3. Fidelidade nas coisas pequenas</h3>
+        <p>Deus confia expansão a quem é fiel no pouco: no horário, no compromisso assumido, na presença. Pontualidade é espiritualidade prática.</p>
+        <span class="ref">Lucas 16:10 · Mateus 25:21</span>
+      </div>
+      <div class="study-item">
+        <h3>4. Unidade multiplica, rivalidade dividi</h3>
+        <p>A expansão da igreja corre onde há unidade entre os líderes — "ali o Senhor ordena a bênção". Murmuração e disputa travam a obra antes de qualquer ataque externo.</p>
+        <span class="ref">Salmo 133:1-3 · Filipenses 2:14</span>
+      </div>
+      <div class="study-item">
+        <h3>5. O líder se multiplica em outros</h3>
+        <p>O verdadeiro obreiro não acumula — transmite: ensina o que aprendeu a homens fiéis que também saibam ensinar outros. É assim que a igreja expande de verdade.</p>
+        <span class="ref">2 Timóteo 2:2 · Êxodo 18:20-21</span>
+      </div>
+    </div>
+    <button class="btn btn-green" onclick="show('sc-intro')">Entendi, voltar</button>
+  </div>
+
+  <!-- TELA PERGUNTAS -->
+  <div class="screen" id="sc-quiz">
+    <div class="progress"><i id="pbar" style="width:0%"></i></div>
+    <div class="card">
+      <div class="qdim" id="qdim"></div>
+      <div class="qtext" id="qtext"></div>
+      <div class="scale" id="opts"></div>
+      <div style="height:14px"></div>
+      <button class="btn btn-ghost" onclick="prevQ()" id="btnPrev" style="display:none">← Anterior</button>
+    </div>
+    <div class="foot" id="qcount"></div>
+  </div>
+
+  <!-- TELA RESULTADO -->
+  <div class="screen" id="sc-result">
+    <div class="card">
+      <span class="badge-expand">🚀 Expansão começa em mim</span>
+      <div class="score-big">
+        <div class="num" id="rScore">0</div>
+        <div class="lbl" id="rClass"></div>
+        <p style="margin-top:6px" id="rSub"></p>
+      </div>
+    </div>
+    <div class="card">
+      <h2 style="font-size:16px">📊 Por dimensão</h2>
+      <div id="rDims"></div>
+    </div>
+    <div class="card">
+      <h2 style="font-size:16px">💪 Seus pontos fortes</h2>
+      <div id="rStrong" style="margin-top:6px"></div>
+    </div>
+    <div class="card">
+      <h2 style="font-size:16px">🎯 Onde melhorar — plano pastoral</h2>
+      <p style="font-size:12.5px;margin-bottom:2px">Duas prioridades para os próximos 90 dias:</p>
+      <div id="rWeak"></div>
+    </div>
+    <div class="card">
+      <h2 style="font-size:16px">📤 Enviar ao pastor</h2>
+      <p style="margin-bottom:12px">Toque no botão abaixo: o WhatsApp abrirá com <b>seu diagnóstico completo</b> já escrito — só envie.</p>
+      <button class="btn btn-wa" onclick="sendWA()">💬 Enviar minhas respostas pelo WhatsApp</button>
+      <button class="btn btn-ghost" onclick="copyAnswers()">📋 Copiar respostas (alternativa)</button>
+      <div class="wa-note">Não apague nada do texto que abrir — o pastor precisa das respostas completas para acompanhar sua liderança.</div>
+      <div style="height:10px"></div>
+      <button class="btn btn-ghost" onclick="redo()">↺ Refazer diagnóstico</button>
+    </div>
+    <div class="foot">"E as coisas que me ouviste... confia a homens fiéis, que sejam idôneos para ensinar também a outros." — 2 Tm 2:2</div>
+  </div>
+
+</div>
+
+<script>
+const WA_NUM = '5533999114393';
+const LS_KEY = 'lideranca_ad_alvorada_v1';
+
+const DIMS = {
+  carater:{name:'Caráter & Personalidade', icon:'🛡️',
+    exp:'A expansão começa por dentro: caráter é o que sustenta o crescimento. Sem ele, igreja que cresce rápido desmorona rápido.',
+    tip:'Leia 1 Timóteo 3:2 e Salmo 139:23-24 toda semana. Peça a Deus que revele o que ninguém vê — e trate isso no altar antes que apareça no salão.'},
+  pontual:{name:'Pontualidade & Compromisso', icon:'⏰',
+    exp:'Igreja que expande depende de líderes em quem se pode confiar: quem é fiel no pouco é fiel no muito (Lc 16:10).',
+    tip:'Lucas 16:10 e Eclesiastes 5:4-5. Compromisso assumido é compromisso cumprido — ajuste sua saída de casa e trate o horário como honra à casa de Deus.'},
+  cultos:{name:'Deveres com a Igreja (cultos)', icon:'⛪',
+    exp:'O altar sustenta o púlpito. A presença fiel do líder forma a cultura da casa: o povo acompanha o padrão dos obreiros.',
+    tip:'Hebreus 10:25 — não deixe de congregar. Esteja nos cultos não por obrigação, mas como intercessor da casa: chegue antes, ore antes, saia por último.'},
+  reunioes:{name:'Reuniões & Ministérios', icon:'🤝',
+    exp:'Unidade multiplica: "ali o Senhor ordena a bênção" (Sl 133). A expansão corre onde os líderes remam na mesma direção.',
+    tip:'Salmo 133:1 e Filipenses 2:14. Participe contribuindo, não só comparecendo. Zero murmuração: se tiver discordância, traga ao pastor — não ao corredor.'},
+  obreiro:{name:'Autopercepção como Obreiro', icon:'🔥',
+    exp:'Líder que se conhece se desenvolve. Obreiro qualificado qualifica outros — e é isso que faz a igreja crescer de verdade (2 Tm 2:2).',
+    tip:'2 Timóteo 2:15 — "procura apresentar-te a Deus aprovado". Mantenha vida devocional diária (oração + Palavra + jejum) e prepare-se para discipular alguém este ano.'},
+  expansao:{name:'Visão de Expansão', icon:'🚀',
+    exp:'Ninguém expande o que não enxerga: o crescimento da igreja é responsabilidade de cada líder, não só do pastor.',
+    tip:'Isaías 54:2 e Atos 1:8. Traga pelo menos 1 visitante por mês. Reze pela cidade com o nome de alguém que ainda não conhece Cristo — e vá buscá-lo.'}
+};
+
+const QUESTIONS = [
+  {d:'carater', t:'Tenho me comportado de maneira irrepreensível dentro e fora da igreja — meu testemunho edifica o nome de Deus.', r:'1 Tm 3:2'},
+  {d:'carater', t:'Controlo a minha língua: não murmuro, não falo mal do próximo e não participo de fofocas — nem "para orar".', r:'Fp 2:14 · Tg 3:10'},
+  {d:'carater', t:'Quando sou corrigido ou contrariado, recebo com mansidão e maturidade, sem mágoa, ressentimento ou afastamento.', r:'Pv 9:8-9 · Hb 12:11'},
+  {d:'pontual', t:'Chego no horário nos cultos, ensaios e compromissos da igreja — minha pontualidade honra a casa de Deus.', r:'Lc 16:10'},
+  {d:'pontual', t:'Cumpro o que assumo: quando me comprometo com uma tarefa ou escala, cumprir sem precisarem me cobrar.', r:'Ec 5:4-5'},
+  {d:'cultos', t:'Estou presente e atento nos cultos da igreja (domingo, reuniões de oração e eventos especiais) — não por obrigação, mas por amor à casa.', r:'Hb 10:25'},
+  {d:'cultos', t:'Sirvo com alegria na minha função e no meu ministério, como chamado de Deus — não como cargo, sem esperar reconhecimento.', r:'Sl 100:2 · Mc 10:44'},
+  {d:'reunioes', t:'Participo ativamente das reuniões de líderes e do meu ministério, contribuindo com ideias e não apenas ouvindo.', r:'Pv 27:17'},
+  {d:'reunioes', t:'Vivo em comunhão com os demais líderes: sem rivalidade, disputa de espaço ou "panelinhas" — somos um só time.', r:'Sl 133:1 · 1 Co 1:10'},
+  {d:'obreiro', t:'Tenho vida devocional constante: oração diária, leitura da Bíblia e jejum como estilo de vida de obreiro.', r:'2 Tm 2:15 · Sl 119:11'},
+  {d:'obreiro', t:'Sinto-me preparado(a) e capacitado(a) para liderar pessoas, discipular e representar a igreja — e busco me qualificar.', r:'2 Tm 2:2 · Êx 18:20-21'},
+  {d:'expansao', t:'Vejo a expansão da igreja como minha responsabilidade: convido pessoas, trago visitantes e oro pelo crescimento da casa.', r:'Is 54:2-3 · At 1:8'}
+];
+
+const SCALE = [
+  {v:1,l:'Nunca',h:'Não é minha realidade'},
+  {v:2,l:'Raramente',h:'Acontece de vez em quando'},
+  {v:3,l:'Às vezes',h:'Meio a meio'},
+  {v:4,l:'Quase sempre',h:'É minha prática, com falhas pontuais'},
+  {v:5,l:'Sempre',h:'É minha vida e testemunho'}
+];
+
+let S = {nome:'', min:'', tempo:'', answers:{}, idx:0};
+
+function load(){ try{ const raw = localStorage.getItem(LS_KEY); if(raw) S = Object.assign(S, JSON.parse(raw)); }catch(e){} }
+function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); }catch(e){} }
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function startQuiz(){
+  const n = document.getElementById('fNome').value.trim();
+  const m = document.getElementById('fMin').value;
+  const t = document.getElementById('fTempo').value;
+  if(!n){ alert('Digite seu nome para começar.'); return; }
+  if(!m){ alert('Selecione seu ministério / área.'); return; }
+  S.nome=n; S.min=m; S.tempo=t; S.idx=0;
+  save(); renderQ(); show('sc-quiz');
+}
+
+function renderQ(){
+  const q = QUESTIONS[S.idx];
+  document.getElementById('qdim').textContent = DIMS[q.d].icon+' '+DIMS[q.d].name;
+  document.getElementById('qtext').innerHTML = q.t + ' <span style="font-size:12px;color:var(--gold);font-weight:700">('+q.r+')</span>';
+  const box = document.getElementById('opts'); box.innerHTML='';
+  SCALE.forEach(o=>{
+    const sel = S.answers[q.t]===o.v ? ' sel':'';
+    const div = document.createElement('div');
+    div.className = 'opt'+sel;
+    div.innerHTML = '<span class="dot d'+o.v+'">'+o.v+'</span><span><b>'+o.l+'</b><br><small style="color:var(--muted);font-weight:500">'+o.h+'</small></span>';
+    div.onclick = ()=>{ S.answers[q.t]=o.v; save();
+      document.querySelectorAll('#opts .opt').forEach(x=>x.classList.remove('sel'));
+      div.classList.add('sel');
+      setTimeout(nextQ, 280);
+    };
+    box.appendChild(div);
+  });
+  document.getElementById('pbar').style.width = (S.idx/QUESTIONS.length*100)+'%';
+  document.getElementById('qcount').textContent = 'Pergunta '+(S.idx+1)+' de '+QUESTIONS.length;
+  document.getElementById('btnPrev').style.display = S.idx>0 ? 'block':'none';
+}
+
+function nextQ(){ if(S.idx < QUESTIONS.length-1){ S.idx++; save(); renderQ(); } else { finish(); } }
+function prevQ(){ if(S.idx>0){ S.idx--; save(); renderQ(); } }
+
+function dimAvg(d){
+  const qs = QUESTIONS.filter(q=>q.d===d);
+  let s=0,c=0;
+  qs.forEach(q=>{ if(S.answers[q.t]){ s+=S.answers[q.t]; c++; } });
+  return c? s/c : 0;
+}
+function cls(v){
+  if(v>=4.5) return {l:'Excelente', c:'var(--green)', b:'b-green'};
+  if(v>=3.5) return {l:'Bom', c:'var(--green2)', b:'b-green'};
+  if(v>=2.5) return {l:'Precisa melhorar', c:'var(--amber)', b:'b-amber'};
+  return {l:'Urgente', c:'var(--red)', b:'b-red'};
+}
+
+function finish(){
+  let sum=0, n=0;
+  QUESTIONS.forEach(q=>{ if(S.answers[q.t]){ sum+=S.answers[q.t]; n++; } });
+  if(n < QUESTIONS.length){ alert('Responda todas as perguntas antes de ver o resultado.'); return; }
+  save();
+
+  const pct = Math.round(sum/(QUESTIONS.length*5)*100);
+  document.getElementById('rScore').textContent = pct;
+  const c = pct>=85?{l:'LIDERANÇA EXCELENTE',s:'Você é referência na casa. Deus confia expansão a quem sustenta com caráter e fidelidade.'}
+          : pct>=70?{l:'LIDERANÇA FORTE',s:'Sua liderança sustenta a casa. Com pequenos ajustes você estará pronto para mais responsabilidade.'}
+          : pct>=50?{l:'EM CRESCIMENTO',s:'Há alicerce, mas há lacunas. Foque nas duas prioridades abaixo — em 90 dias este resultado muda.'}
+          :{l:'PRECISA DE ATENÇÃO',s:'Este é o primeiro passo honesto. Converse com o pastor: ninguém lidera sozinho e ninguém é abandonado aqui.'};
+  document.getElementById('rClass').textContent = c.l;
+  document.getElementById('rClass').style.color = c.l.includes('ATENÇÃO')?'var(--red)': c.l.includes('CRESCIMENTO')?'var(--amber)':'var(--green)';
+  document.getElementById('rSub').textContent = c.s;
+
+  // dims
+  const box = document.getElementById('rDims'); box.innerHTML='';
+  const dimList = Object.keys(DIMS);
+  dimList.forEach(k=>{
+    const a = dimAvg(k), cl = cls(a);
+    const div = document.createElement('div'); div.className='dimrow';
+    div.innerHTML = '<div class="dh"><span>'+DIMS[k].icon+' '+DIMS[k].name+'</span><span style="color:'+cl.c+'">'+a.toFixed(1)+' · '+cl.l+'</span></div>'+
+      '<div class="bar"><i class="'+cl.b+'" style="width:'+(a/5*100)+'%"></i></div>'+
+      '<div class="expbox"><b>🚀 Expansão:</b> '+DIMS[k].exp+'</div>';
+    box.appendChild(div);
+  });
+
+  // strengths & weaknesses
+  const order = dimList.map(k=>({k,a:dimAvg(k)})).sort((x,y)=>y.a-x.a);
+  const strong = order.filter(o=>o.a>=4).slice(0,3);
+  const weak = order.filter(o=>o.a<4).slice(-2).sort((x,y)=>x.a-y.a);
+  document.getElementById('rStrong').innerHTML = strong.length
+    ? strong.map(o=>'<span class="pill">'+DIMS[o.k].icon+' '+DIMS[o.k].name+' ('+o.a.toFixed(1)+')</span>').join('')
+    : '<p style="font-size:13px;color:var(--muted)">Nenhuma dimensão acima de 4.0 ainda — o plano pastoral abaixo é o seu ponto de partida.</p>';
+  document.getElementById('rWeak').innerHTML = (weak.length?weak:order.slice(0,2)).map(o=>
+    '<div class="tipbox"><b>'+DIMS[o.k].icon+' '+DIMS[o.k].name+' ('+o.a.toFixed(1)+'):</b> '+DIMS[o.k].tip+'</div>').join('');
+
+  show('sc-result');
+}
+
+function buildText(){
+  const dt = new Date().toLocaleDateString('pt-BR');
+  let sum=0; QUESTIONS.forEach(q=>{ sum+=S.answers[q.t]; });
+  const pct = Math.round(sum/(QUESTIONS.length*5)*100);
+  const c = pct>=85?'LIDERANÇA EXCELENTE':pct>=70?'LIDERANÇA FORTE':pct>=50?'EM CRESCIMENTO':'PRECISA DE ATENÇÃO';
+  let t = '*DIAGNÓSTICO DE LIDERANÇA — AD ALVORADA*\n';
+  t += '🚀 _Tema anual: EXPANSÃO_\n\n';
+  t += '👤 *'+S.nome+'*\n⛪ Ministério: '+S.min+'\n⏳ Tempo de obreiro: '+(S.tempo||'-')+'\n📅 '+dt+'\n\n';
+  t += '📊 *RESULTADO GERAL: '+pct+'/100 — '+c+'*\n\n';
+  t += '*Por dimensão:*\n';
+  Object.keys(DIMS).forEach(k=>{
+    const a = dimAvg(k);
+    const e = a>=4.5?'🟢':a>=3.5?'🟢':a>=2.5?'🟡':'🔴';
+    t += e+' '+DIMS[k].name+': *'+a.toFixed(1)+'*\n';
+  });
+  t += '\n*Respostas:*\n';
+  QUESTIONS.forEach((q,i)=>{
+    const v = S.answers[q.t];
+    const o = SCALE.find(x=>x.v===v);
+    t += (i+1)+'. '+q.t.replace(/<[^>]*>/g,'')+'\n   → *'+o.l+'* ('+v+'/5)\n\n';
+  });
+  if(S.obs) t += '📝 *Observação:*\n'+S.obs+'\n\n';
+  t += '🙏 _"Alarga o espaço da tua tenda..." — Is 54:2_';
+  return t;
+}
+
+function sendWA(){
+  const url = 'https://wa.me/'+WA_NUM+'?text='+encodeURIComponent(buildText());
+  window.open(url,'_blank');
+}
+function copyAnswers(){
+  navigator.clipboard.writeText(buildText()).then(
+    ()=>alert('✅ Respostas copiadas! Abra o WhatsApp, procure o pastor e cole.'),
+    ()=>alert('Não foi possível copiar automaticamente. Use o botão do WhatsApp.'));
+}
+function redo(){
+  if(confirm('Refazer o diagnóstico? As respostas atuais serão descartadas.')){
+    S = {nome:S.nome, min:S.min, tempo:S.tempo, answers:{}, idx:0};
+    save(); S.idx=0; renderQ(); show('sc-quiz');
+  }
+}
+
+load();
+// restaura rascunho salvo
+if(S.nome && document.getElementById('fNome')) document.getElementById('fNome').value = S.nome;
+if(S.min) document.getElementById('fMin').value = S.min;
+if(S.tempo) document.getElementById('fTempo').value = S.tempo;
+</script>
+</body>
+</html>
