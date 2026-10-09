@@ -241,7 +241,7 @@ const QUESTIONS = [
   {d:'carater', t:'Controlo a minha língua: não murmuro, não falo mal do próximo e não participo de fofocas — nem "para orar".', r:'Fp 2:14 · Tg 3:10'},
   {d:'carater', t:'Quando sou corrigido ou contrariado, recebo com mansidão e maturidade, sem mágoa, ressentimento ou afastamento.', r:'Pv 9:8-9 · Hb 12:11'},
   {d:'pontual', t:'Chego no horário nos cultos, ensaios e compromissos da igreja — minha pontualidade honra a casa de Deus.', r:'Lc 16:10'},
-  {d:'pontual', t:'Cumprir o que assumo: quando me comprometo com uma tarefa ou escala, cumprir sem precisarem me cobrar.', r:'Ec 5:4-5'},
+  {d:'pontual', t:'Cumpro o que assumo: quando me comprometo com uma tarefa ou escala, cumprir sem precisarem me cobrar.', r:'Ec 5:4-5'},
   {d:'cultos', t:'Estou presente e atento nos cultos da igreja (domingo, reuniões de oração e eventos especiais) — não por obrigação, mas por amor à casa.', r:'Hb 10:25'},
   {d:'cultos', t:'Sirvo com alegria na minha função e no meu ministério, como chamado de Deus — não como cargo, sem esperar reconhecimento.', r:'Sl 100:2 · Mc 10:44'},
   {d:'reunioes', t:'Participo ativamente das reuniões de líderes e do meu ministério, contribuindo com ideias e não apenas ouvindo.', r:'Pv 27:17'},
@@ -281,7 +281,7 @@ function startQuiz(){
 }
 
 function renderQ(){
-  const q = QUESTIONS[5];
+  const q = QUESTIONS[S.idx];
   document.getElementById('qdim').textContent = DIMS[q.d].icon+' '+DIMS[q.d].name;
   document.getElementById('qtext').innerHTML = q.t + ' <span style="font-size:12px;color:var(--gold);font-weight:700">('+q.r+')</span>';
   const box = document.getElementById('opts'); box.innerHTML='';
@@ -386,7 +386,7 @@ function buildText(){
 }
 
 function sendWA(){
-  const url = 'https://wa.me/5533998594014?text='+encodeURIComponent(buildText());
+  const url = 'https://wa.me/'+WA_NUM+'?text='+encodeURIComponent(buildText());
   window.open(url,'_blank');
 }
 function copyAnswers(){
